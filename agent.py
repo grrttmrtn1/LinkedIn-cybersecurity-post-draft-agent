@@ -15,7 +15,8 @@ current_year = str(datetime.datetime.now().year)
 load_dotenv()
 
 GoogleModel = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    #model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     temperature=1.0,
     max_tokens=None,
     timeout=None,
@@ -42,7 +43,7 @@ CRITICAL INSTRUCTION: Do not rely on your internal memory for "trending" news.
 1. You MUST use the `internet_search` tool to find events that happened in the current month.
 2. Look for specific incidents this year (e.g., the Stryker network disruption or the Tycoon 2FA takedown).
 3. If the search results are empty or outdated, refine your search to "cybersecurity or tech news in the current month".
-4. Draft a LinkedIn post only AFTER you have confirmed data from the current year.
+4. Draft a LinkedIn post only AFTER you have confirmed data from the current year. Include details and context from the search. Do not simply make generalized or broad summarizations.
 5. Make sure any hashtags include a final #AIAgentGenerated hashtag.
 """
 
