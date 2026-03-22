@@ -43,6 +43,7 @@ CRITICAL INSTRUCTION: Do not rely on your internal memory for "trending" news.
 2. Look for specific incidents this year (e.g., the Stryker network disruption or the Tycoon 2FA takedown).
 3. If the search results are empty or outdated, refine your search to "cybersecurity news in the current month".
 4. Draft a LinkedIn post only AFTER you have confirmed data from the current year.
+5. Make sure any hashtags include a final #AIAgentGenerated hashtag.
 """
 
 agent = create_deep_agent(
