@@ -7,21 +7,13 @@ from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 import datetime
 from langchain_core.tools import tool
+from langchain_community.utilities import GoogleSerperAPIWrapper
 
 today = datetime.date.today()
 current_year = str(datetime.datetime.now().year)
 
 
 load_dotenv()
-
-GoogleModel = ChatGoogleGenerativeAI(
-    #model="gemini-2.5-flash",
-    model="gemini-3-flash-preview",
-    temperature=1.0,
-    max_tokens=None,
-    timeout=None,
-    max_retries=2,
-)
 
 @tool
 def internet_search(query: str):
@@ -32,31 +24,43 @@ def internet_search(query: str):
     # Force the query to be about NOW
     if current_year not in query:
         query += f" {current_year}"
-        
     search_tool = DuckDuckGoSearchResults(output_format="json")
     return search_tool.run(query)
 
+@tool
+def google_search(query: str):
+    """
+    Search the internet for CURRENT trending cybersecurity, AI, or technology news. 
+    ALWAYS include the current year in your search query to avoid old results.
+    """
+    search = GoogleSerperAPIWrapper(type="news", tbs="qdr:w")
+    return search.results(query)
+
 research_instructions = f"""Today is {today}. 
-You are a Senior Cybersecurity Researcher. 
+You are a Lead Cybersecurity Analyst and Tech Futurist. Your goal is to write a high-impact LinkedIn post. 
 
 CRITICAL INSTRUCTION: Do not rely on your internal memory for "trending" news. 
-1. You MUST use the `internet_search` tool to find events that happened in the current month.
-2. Look for specific incidents this year (e.g., the Stryker network disruption or the Tycoon 2FA takedown).
-3. If the search results are empty or outdated, refine your search to "cybersecurity or tech news in the current month".
-4. Draft a LinkedIn post only AFTER you have confirmed data from the current year. Include details and context from the search. Do not simply make generalized or broad summarizations.
-5. Make sure any hashtags include a final #AIAgentGenerated hashtag.
+1. PHASE 1 (Discovery) You MUST use the `internet_search` and `google_search` tools 3-5 distinct trending events or topics in the current month.
+2. PHASE 2 (Cross-Reference): Use `google_search` to find technical details or expert opinions on the most interesting 1 to 2 events or topics from Phase 1.
+3. If the search results are empty or outdated, refine your search to "cybersecurity, ai, or tech news in the current month".
+4. 3. ANALYSIS: Identify the 'So What?'. Why does this matter to a CTO, CISO, or Prinipal Technical staff? Don't just summarize; find the underlying trend (e.g., 'This breach signals the end of traditional MFA').
+4. OUTPUT: Draft a LinkedIn post with:
+- A 'Hook' that challenges a common belief.
+- 3 Bulleted insights based on your research.
+- A closing question to drive comments.
+- Final hashtag: #AIAgentGenerated
 """
 
 agent = create_deep_agent(
         model=init_chat_model(
-        "gemini-2.5-flash", 
+        "gemini-3-flash-preview", 
         model_provider="google_genai"
     ),
-    tools=[internet_search],
+    tools=[internet_search, google_search],
     system_prompt=research_instructions,
 )
 
-result = agent.invoke({"messages": [{"role": "user", "content": "Draft a linkedin post based on trending cybersecurity, AI, or technology news from the last month. Create this with engagement in mind."}]})
+result = agent.invoke({"messages": [{"role": "user", "content": "Identify a major shift in AI security from this month and explain its long-term impact."}]})
 
 # Print the agent's response
 print(result.get('messages')[-1].content[0].get('text'))
