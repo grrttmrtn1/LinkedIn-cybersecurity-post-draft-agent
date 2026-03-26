@@ -51,7 +51,7 @@ def analyze_and_extract_insight(raw_findings: str) -> str:
     Pass in a consolidated summary of your Phase 1 + Phase 2 search findings as the input.
     This tool produces the analytical foundation the post must be built on.
     """
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro-preview-06-05")
+    llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview")
 
     analysis_prompt = f"""You are a cybersecurity strategist and tech futurist performing deep, first-principles analysis.
 Today is {today}.
@@ -147,7 +147,7 @@ def editorial_pass(draft: str) -> str:
     Second-pass editor that strips shallow metadata, enforces analytical depth,
     and tightens language to production quality.
     """
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro")
+    llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview")
 
     editor_prompt = f"""You are a brutally honest editor for technical thought leadership content.
 Your job is to ensure every sentence earns its place and reflects genuine analytical thinking.
@@ -175,6 +175,8 @@ Apply these editorial rules without mercy:
 
 6. PRESERVE TECHNICAL PRECISION: Do not simplify to the point of inaccuracy. Keep jargon where it is the right word.
 
+7. AI DISCLOSURE: Ensure that the final hashtag is #AIAgentGenerated.
+
 Return ONLY the final polished post, no commentary or explanation."""
 
     response = llm.invoke(editor_prompt)
@@ -187,7 +189,7 @@ Return ONLY the final polished post, no commentary or explanation."""
 
 agent = create_deep_agent(
     model=init_chat_model(
-        "gemini-2.5-pro",  # Reasoning model — depth over speed
+        "gemini-3-flash-preview",  # Reasoning model — depth over speed
         model_provider="google_genai"
     ),
     tools=[internet_search, google_search, analyze_and_extract_insight],
@@ -215,4 +217,4 @@ final_post = editorial_pass(draft)
 print("\n" + "=" * 60)
 print("FINAL POST (after editorial pass):")
 print("=" * 60)
-print(final_post)
+print(final_post[0].get('text'))
